@@ -1,0 +1,4 @@
+include README.md
+recursive-include octoprint_wirecam/templates *
+recursive-include octoprint_wirecam/translations *
+recursive-include octoprint_wirecam/static *
