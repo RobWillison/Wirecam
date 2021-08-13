@@ -5,6 +5,7 @@ import octoprint.plugin
 from octoprint.events import Events
 import serial
 import re
+import math
 
 ### (Don't forget to remove me)
 # This is a basic skeleton for your plugin's __init__.py. You probably want to adjust the class name of your plugin
@@ -24,7 +25,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
     octoprint.plugin.SettingsPlugin):
 
     def on_after_startup(self):
-        self._logger.info("Hello World!")
+        self._logger.info('Starting Wirecam')
         try:
             self.serial = serial.Serial ("/dev/ttyS0", 9600)
         except:
@@ -39,7 +40,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
          )
 
     def get_settings_defaults(self):
-        return dict(radius=10)
+        return dict(radius=10, height=10)
 
     def on_event(self, event, payload):
         if event == Events.PRINT_STARTED:
@@ -47,11 +48,30 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
 
     def process_gcode(self, filename):
         gcode = open(filename, 'r').read()
-        layer_height = int(re.search(r'layer_height = ([0-9.]+)', gcode).group(1))
+        layer_height = float(re.search(r'layer_height = ([0-9.]+)', gcode).group(1))
         matches = re.findall(r'Z([0-9.-]+)', gcode)
         top_layer = max([float(m) for m in matches])
-        layers = top_layer / layer_height
-        print('The gcode has ' + layers + ' layers')
+        layers = math.ceil(top_layer / layer_height)
+        self._logger.info('The gcode has ' + str(layers) + ' layers')
+        camera_height = int(self._settings.get(['height']))
+        radius = int(self._settings.get(['radius']))
+        self._logger.info('height is set too ' + str(camera_height))
+        self._logger.info('radius is set too ' + str(radius))
+
+        camera_coords = []
+        angle_step = 360 / layers
+        for i in range(layers):
+            x = radius * math.sin(math.radians(angle_step * i))
+            y = radius * math.cos(math.radians(angle_step * i))
+            camera_coords.append([x,y,camera_height])
+
+        self._logger.info(camera_coords)
+
+    def on_gcode_queueing(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
+        octolapse_tags = ['snapshot-init', 'snapshot-start', 'snapshot-gcode', 'wait-for-position', 'snapshot-return', 'snapshot-end']
+        tags = kwargs['tags']
+        self._logger.info(tags)
+        self._logger.info('GCODE - ' + cmd + ' ' + str(gcode))
 
 
     @octoprint.plugin.BlueprintPlugin.route("/home", methods=["GET"])
@@ -88,5 +108,6 @@ def __plugin_load__():
 
     global __plugin_hooks__
     __plugin_hooks__ = {
-        "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
+        "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
+        "octoprint.comm.protocol.gcode.queuing": __plugin_implementation__.on_gcode_queueing
     }
