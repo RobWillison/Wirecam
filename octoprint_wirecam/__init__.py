@@ -6,6 +6,7 @@ from octoprint.events import Events
 import serial
 import re
 import math
+from time import sleep
 
 ### (Don't forget to remove me)
 # This is a basic skeleton for your plugin's __init__.py. You probably want to adjust the class name of your plugin
@@ -68,10 +69,12 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         self._logger.info(camera_coords)
 
     def on_gcode_queueing(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
-        octolapse_tags = ['snapshot-init', 'snapshot-start', 'snapshot-gcode', 'wait-for-position', 'snapshot-return', 'snapshot-end']
+        octolapse_tags = {'snapshot-init', 'snapshot-start', 'snapshot-gcode', 'snapshot-return', 'snapshot-end'}
         tags = kwargs['tags']
-        self._logger.info(tags)
-        self._logger.info('GCODE - ' + cmd + ' ' + str(gcode))
+        if len(tags.intersection(octolapse_tags)) > 0
+            self._logger.info(tags)
+            self._logger.info('GCODE - ' + cmd + ' ' + str(gcode))
+            sleep(5)
 
 
     @octoprint.plugin.BlueprintPlugin.route("/home", methods=["GET"])
