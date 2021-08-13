@@ -41,7 +41,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         x = flask.request.values['x']
         y = flask.request.values['y']
         z = flask.request.values['z']
-        self.serial.write(str.encode('C' + x + ',' + y + ',' + z)
+        self.serial.write(str.encode('C' + x + ',' + y + ',' + z))
         return 'Moved'
 
 
