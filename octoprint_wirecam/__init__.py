@@ -71,7 +71,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
     def on_gcode_queueing(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
         octolapse_tags = {'snapshot-init', 'snapshot-start', 'snapshot-gcode', 'snapshot-return', 'snapshot-end'}
         tags = kwargs['tags']
-        if len(tags.intersection(octolapse_tags)) > 0
+        if len(tags.intersection(octolapse_tags)) > 0:
             self._logger.info(tags)
             self._logger.info('GCODE - ' + cmd + ' ' + str(gcode))
             sleep(5)
