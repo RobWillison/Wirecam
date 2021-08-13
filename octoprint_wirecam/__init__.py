@@ -2,7 +2,9 @@
 from __future__ import absolute_import
 import flask
 import octoprint.plugin
+from octoprint.events import Events
 import serial
+import re
 
 ### (Don't forget to remove me)
 # This is a basic skeleton for your plugin's __init__.py. You probably want to adjust the class name of your plugin
@@ -17,19 +19,40 @@ import octoprint.plugin
 class WirecamPlugin(octoprint.plugin.StartupPlugin,
     octoprint.plugin.TemplatePlugin,
     octoprint.plugin.BlueprintPlugin,
-    octoprint.plugin.AssetPlugin):
+    octoprint.plugin.AssetPlugin,
+    octoprint.plugin.EventHandlerPlugin,
+    octoprint.plugin.SettingsPlugin):
 
     def on_after_startup(self):
         self._logger.info("Hello World!")
-        self.serial = serial.Serial ("/dev/ttyS0", 9600)
+        try:
+            self.serial = serial.Serial ("/dev/ttyS0", 9600)
+        except:
+            self.serial = False
 
     def get_update_information(self):
         return {}
 
     def get_assets(self):
-     return dict(
-         js=["js/wirecam.js"]
-     )
+         return dict(
+             js=["js/wirecam.js"]
+         )
+
+    def get_settings_defaults(self):
+        return dict(radius=10)
+
+    def on_event(self, event, payload):
+        if event == Events.PRINT_STARTED:
+            self.process_gcode(self._settings.settings.getBaseFolder('uploads') + '/' + payload['path'])
+
+    def process_gcode(self, filename):
+        gcode = open(filename, 'r').read()
+        layer_height = int(re.search(r'layer_height = ([0-9.]+)', gcode).group(1))
+        matches = re.findall(r'Z([0-9.-]+)', gcode)
+        top_layer = max([float(m) for m in matches])
+        layers = top_layer / layer_height
+        print('The gcode has ' + layers + ' layers')
+
 
     @octoprint.plugin.BlueprintPlugin.route("/home", methods=["GET"])
     def home(self):
