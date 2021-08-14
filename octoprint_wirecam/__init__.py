@@ -63,7 +63,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         layers = math.ceil(top_layer / layer_height)
         self._logger.info('The gcode has ' + str(layers) + ' layers')
         radius = int(self._settings.get(['radius']))
-        self._logger.info('height is set too ' + str(camera_height))
+
         self._logger.info('radius is set too ' + str(radius))
 
         camera_coords = []
