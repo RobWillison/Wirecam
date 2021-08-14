@@ -63,11 +63,15 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         self._logger.info('radius is set too ' + str(radius))
 
         camera_coords = []
-        angle_step = 360 / layers
+        angle_step = 180 / layers
         for i in range(layers):
-            x = radius * math.sin(math.radians(angle_step * i))
-            y = radius * math.cos(math.radians(angle_step * i))
-            camera_coords.append([x,y,camera_height])
+            angle = angle_step * i
+            x = radius * math.sin(math.radians(angle + 90))
+            y = radius * math.cos(math.radians(angle + 90))
+            # point camera to the center
+            rotate_stepper = 1 - (angle / 180)
+
+            camera_coords.append([x,y,camera_height, rotate_stepper, 0])
 
         self._logger.info(camera_coords)
         self._camera_coords = camera_coords
@@ -84,24 +88,24 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         y = flask.request.values['y']
         z = flask.request.values['z']
         self._logger.info('MOVING TO ' + x + ',' + y + ',' + z)
-        self.moveCamera(x,y,z)
+        self.moveCamera(x,y,z, 0, 0)
 
         return 'Moved'
 
     @octoprint.plugin.BlueprintPlugin.route("/next_position", methods=["GET"])
     def next_position(self):
         if len(self._camera_coords) > 0:
-            x,y,z = self._camera_coords.pop(0)
-            self._logger.info('MOVING TO ' + str(x) + ',' + str(y) + ',' + str(z))
-            self.moveCamera(x,y,z)
+            x,y,z,r,u = self._camera_coords.pop(0)
+            self._logger.info('MOVING TO ' + str(x) + ',' + str(y) + ',' + str(z) + ',' + str(r) + ',' + str(u))
+            self.moveCamera(x,y,z,r,u)
 
         return 'Moved'
 
-    def moveCamera(self, x, y, z):
+    def moveCamera(self, x, y, z,r,u):
         if not self.serial:
             return
         self.serial.reset_input_buffer()
-        self.serial.write(str.encode('C' + str(x) + ',' + str(y) + ',' + str(z)))
+        self.serial.write(str.encode('C' + str(x) + ',' + str(y) + ',' + str(z) + ',' + str(r) + ',' + str(u)))
         self.serial.read_until(b'DONE', 4)
         # wait 2 secs for wobble to stop
         sleep(2)
