@@ -28,8 +28,8 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
     def on_after_startup(self):
         self._logger.info('Starting Wirecam')
         self._camera_coords = []
-        print('========================================================')
-        print('TEST - ' + self._settings.settings.getBaseFolder('uploads'))
+        self._logger.info('========================================================')
+        self._logger.info('TEST - ' + self._settings.settings.getBaseFolder('uploads'))
         try:
             self.serial = serial.Serial("/dev/ttyS0", 9600)
         except:
