@@ -43,6 +43,11 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
              js=["js/wirecam.js"]
          )
 
+    def get_template_configs(self):
+        return [
+            dict(type="settings", custom_bindings=False)
+        ]
+
     def get_settings_defaults(self):
         return dict(radius=5, height=10)
 
