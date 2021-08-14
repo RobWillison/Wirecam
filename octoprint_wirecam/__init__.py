@@ -71,7 +71,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
             # point camera to the center
             rotate_stepper = angle / 180
 
-            camera_coords.append([x,y,camera_height, rotate_stepper, 0])
+            camera_coords.append([x,y,camera_height, rotate_stepper, 1])
 
         self._logger.info(camera_coords)
         self._camera_coords = camera_coords
