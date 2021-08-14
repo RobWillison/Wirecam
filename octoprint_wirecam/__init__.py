@@ -76,7 +76,6 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
     def home(self):
         self._logger.info('HOMING')
         self.homeCamera()
-        sleep(2)
         return 'Homed'
 
     @octoprint.plugin.BlueprintPlugin.route("/move", methods=["GET"])
@@ -103,6 +102,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         self.serial.reset_input_buffer()
         self.serial.write(str.encode('C' + str(x) + ',' + str(y) + ',' + str(z)))
         self.serial.read_until(b'DONE', 4)
+        # wait 2 secs for wobble to stop
         sleep(2)
 
     def homeCamera(self):
@@ -112,7 +112,6 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         self.serial.reset_input_buffer()
         self.serial.write(b'HOME')
         self.serial.read_until(b'DONE', 4)
-        sleep(2)
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
