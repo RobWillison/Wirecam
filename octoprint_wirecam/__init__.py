@@ -27,8 +27,11 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
 
     def on_after_startup(self):
         self._logger.info('Starting Wirecam')
+        self._camera_coords = []
+        print('========================================================')
+        print('TEST - ' + self._settings.settings.getBaseFolder('uploads'))
         try:
-            self.serial = serial.Serial ("/dev/ttyS0", 9600)
+            self.serial = serial.Serial("/dev/ttyS0", 9600)
         except:
             self.serial = False
 
@@ -67,19 +70,13 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
             camera_coords.append([x,y,camera_height])
 
         self._logger.info(camera_coords)
-
-    def on_gcode_queueing(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
-        octolapse_tags = {'snapshot-init', 'snapshot-start', 'snapshot-gcode', 'snapshot-return', 'snapshot-end'}
-        tags = kwargs['tags']
-        if len(tags.intersection(octolapse_tags)) > 0:
-            self._logger.info(tags)
-            self._logger.info('GCODE - ' + cmd + ' ' + str(gcode))
-            sleep(5)
-
+        self._camera_coords = camera_coords
 
     @octoprint.plugin.BlueprintPlugin.route("/home", methods=["GET"])
     def home(self):
-        self.serial.write(b'HOME')
+        self._logger.info('HOMING')
+        self.homeCamera()
+        sleep(2)
         return 'Homed'
 
     @octoprint.plugin.BlueprintPlugin.route("/move", methods=["GET"])
@@ -87,11 +84,35 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         x = flask.request.values['x']
         y = flask.request.values['y']
         z = flask.request.values['z']
-        self.serial.write(str.encode('C' + x + ',' + y + ',' + z))
+        self._logger.info('MOVING TO ' + x + ',' + y + ',' + z)
+        self.moveCamera(x,y,z)
+
         return 'Moved'
 
+    @octoprint.plugin.BlueprintPlugin.route("/next_position", methods=["GET"])
+    def next_position(self):
+        x,y,z = self._camera_coords.pop(0)
+        self._logger.info('MOVING TO ' + str(x) + ',' + str(y) + ',' + str(z))
+        self.moveCamera(x,y,z)
 
+        return 'Moved'
 
+    def moveCamera(self, x, y, z):
+        if not self.serial:
+            return
+        self.serial.reset_input_buffer()
+        self.serial.write(str.encode('C' + str(x) + ',' + str(y) + ',' + str(z)))
+        self.serial.read_until(b'DONE', 4)
+        sleep(2)
+
+    def homeCamera(self):
+        if not self.serial:
+            return
+
+        self.serial.reset_input_buffer()
+        self.serial.write(b'HOME')
+        self.serial.read_until(b'DONE', 4)
+        sleep(2)
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
@@ -111,6 +132,5 @@ def __plugin_load__():
 
     global __plugin_hooks__
     __plugin_hooks__ = {
-        "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
-        "octoprint.comm.protocol.gcode.queuing": __plugin_implementation__.on_gcode_queueing
+        "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
     }

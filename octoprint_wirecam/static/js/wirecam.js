@@ -13,22 +13,28 @@ $(function() {
         // self.settingsViewModel = parameters[1];
 
         self.move = function() {
+          $('#tab_plugin_wirecam button').prop('disabled', true);
+
           $.ajax({
                 url: "./plugin/wirecam/move",
                 type: "GET",
                 data: {x: $('#tab_plugin_wirecam #x').val(), y: $('#tab_plugin_wirecam #y').val(), z: $('#tab_plugin_wirecam #z').val()},
                 success: function (results) {
                   console.log(results)
+                  $('#tab_plugin_wirecam button').prop('disabled', false);
                 }
             });
         }
 
         self.home = function() {
+          $('#tab_plugin_wirecam button').prop('disabled', true);
+
           $.ajax({
                 url: "./plugin/wirecam/home",
                 type: "GET",
                 success: function (results) {
                   console.log(results)
+                  $('#tab_plugin_wirecam button').prop('disabled', false);
                 }
             });
         }
