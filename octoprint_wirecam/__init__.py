@@ -44,7 +44,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
          )
 
     def get_settings_defaults(self):
-        return dict(radius=10, height=10)
+        return dict(radius=5, height=10)
 
     def on_event(self, event, payload):
         if event == Events.PRINT_STARTED:
