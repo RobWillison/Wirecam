@@ -90,9 +90,10 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
 
     @octoprint.plugin.BlueprintPlugin.route("/next_position", methods=["GET"])
     def next_position(self):
-        x,y,z = self._camera_coords.pop(0)
-        self._logger.info('MOVING TO ' + str(x) + ',' + str(y) + ',' + str(z))
-        self.moveCamera(x,y,z)
+        if len(self._camera_coords) > 0:
+            x,y,z = self._camera_coords.pop(0)
+            self._logger.info('MOVING TO ' + str(x) + ',' + str(y) + ',' + str(z))
+            self.moveCamera(x,y,z)
 
         return 'Moved'
 
