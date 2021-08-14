@@ -49,7 +49,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         ]
 
     def get_settings_defaults(self):
-        return dict(radius=5, height=10)
+        return dict(radius=5, start_height=5, end_height=10)
 
     def on_event(self, event, payload):
         if event == Events.PRINT_STARTED:
@@ -62,13 +62,16 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         top_layer = max([float(m) for m in matches])
         layers = math.ceil(top_layer / layer_height)
         self._logger.info('The gcode has ' + str(layers) + ' layers')
-        camera_height = int(self._settings.get(['height']))
         radius = int(self._settings.get(['radius']))
         self._logger.info('height is set too ' + str(camera_height))
         self._logger.info('radius is set too ' + str(radius))
 
         camera_coords = []
         angle_step = 180 / layers
+
+        start_height = self._settings.get(['start_height'])
+        height_step = (float(start_height) - float(self._settings.get(['end_height']))) / layers
+
         for i in range(layers):
             angle = angle_step * i
             x = radius * math.sin(math.radians(angle + 90))
@@ -76,7 +79,9 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
             # point camera to the center
             rotate_stepper = angle / 180
 
-            camera_coords.append([x,y,camera_height, rotate_stepper, 1])
+            z = height_step * layers + start_height
+
+            camera_coords.append([x,y,z, rotate_stepper, 1])
 
         self._logger.info(camera_coords)
         self._camera_coords = camera_coords
