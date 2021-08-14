@@ -49,7 +49,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         ]
 
     def get_settings_defaults(self):
-        return dict(radius=5, start_height=5, end_height=10)
+        return dict(radius=7, start_height=5, end_height=12)
 
     def on_event(self, event, payload):
         if event == Events.PRINT_STARTED:
@@ -69,9 +69,9 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         camera_coords = []
         angle_step = 180 / layers
 
-        start_height = self._settings.get(['start_height'])
-        height_step = (float(start_height) - float(self._settings.get(['end_height']))) / layers
-
+        start_height = float(self._settings.get(['start_height']))
+        height_step = (float(self._settings.get(['end_height'])) - start_height) / layers
+        self._logger.info('Height step is ' + str(height_step))
         for i in range(layers):
             angle = angle_step * i
             x = radius * math.sin(math.radians(angle + 90))
@@ -79,7 +79,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
             # point camera to the center
             rotate_stepper = angle / 180
 
-            z = height_step * layers + start_height
+            z = height_step * i + start_height
 
             camera_coords.append([x,y,z, rotate_stepper, 1])
 
