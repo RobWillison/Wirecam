@@ -31,7 +31,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         self._logger.info('========================================================')
         self._logger.info('TEST - ' + self._settings.settings.getBaseFolder('uploads'))
         try:
-            self.serial = serial.Serial("/dev/ttyS0", 9600)
+            self.serial = serial.Serial("/dev/ttyS0", 9600, timeout=30)
         except:
             self.serial = False
 
@@ -69,7 +69,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
             x = radius * math.sin(math.radians(angle + 90))
             y = radius * math.cos(math.radians(angle + 90))
             # point camera to the center
-            rotate_stepper = 1 - (angle / 180)
+            rotate_stepper = angle / 180
 
             camera_coords.append([x,y,camera_height, rotate_stepper, 0])
 
