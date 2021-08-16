@@ -97,8 +97,10 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         x = flask.request.values['x']
         y = flask.request.values['y']
         z = flask.request.values['z']
-        self._logger.info('MOVING TO ' + x + ',' + y + ',' + z)
-        self.moveCamera(x,y,z, 0, 0)
+        r = flask.request.values['r']
+        u = flask.request.values['u']
+        self._logger.info('MOVING TO ' + x + ',' + y + ',' + z + ',' + r + ',' + u)
+        self.moveCamera(x,y,z, r, u)
 
         return 'Moved'
 
