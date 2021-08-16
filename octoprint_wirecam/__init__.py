@@ -16,7 +16,7 @@ from time import sleep
 #
 # Take a look at the documentation on what other plugin mixins are available.
 
-import octoprint.plugin
+import octopritn.plugin
 
 class WirecamPlugin(octoprint.plugin.StartupPlugin,
     octoprint.plugin.TemplatePlugin,
@@ -31,7 +31,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         self._logger.info('========================================================')
         self._logger.info('TEST - ' + self._settings.settings.getBaseFolder('uploads'))
         try:
-            self.serial = serial.Serial("/dev/ttyS0", 9600, timeout=30)
+            self.serial = serial.Serial("/dev/ttyACM0", 115200, timeout=30)
         except:
             self.serial = False
 
@@ -115,8 +115,8 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         if not self.serial:
             return
         self.serial.reset_input_buffer()
-        self.serial.write(str.encode('C' + str(x) + ',' + str(y) + ',' + str(z) + ',' + str(r) + ',' + str(u)))
-        self.serial.read_until(b'DONE', 4)
+        self.serial.write(str.encode('C' + str(x) + ',' + str(y) + ',' + str(z) + ',' + str(r) + ',' + str(u) + '\r\n'))
+        self.serial.read_until(b'Done', 4)
         # wait 2 secs for wobble to stop
         sleep(2)
 
@@ -125,8 +125,8 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
             return
 
         self.serial.reset_input_buffer()
-        self.serial.write(b'HOME')
-        self.serial.read_until(b'DONE', 4)
+        self.serial.write(b'HOME\r\n')
+        self.serial.read_until(b'Done', 4)
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
