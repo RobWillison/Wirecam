@@ -16,7 +16,7 @@ from time import sleep
 #
 # Take a look at the documentation on what other plugin mixins are available.
 
-import octopritn.plugin
+import octoprint.plugin
 
 class WirecamPlugin(octoprint.plugin.StartupPlugin,
     octoprint.plugin.TemplatePlugin,
