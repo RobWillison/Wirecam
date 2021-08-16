@@ -18,7 +18,7 @@ $(function() {
           $.ajax({
                 url: "./plugin/wirecam/move",
                 type: "GET",
-                data: {x: $('#tab_plugin_wirecam #x').val(), y: $('#tab_plugin_wirecam #y').val(), z: $('#tab_plugin_wirecam #z').val()},
+                data: {x: $('#tab_plugin_wirecam #x').val(), y: $('#tab_plugin_wirecam #y').val(), z: $('#tab_plugin_wirecam #z').val(), r: $('#tab_plugin_wirecam #r').val(), u: $('#tab_plugin_wirecam #u').val()},
                 success: function (results) {
                   console.log(results)
                   $('#tab_plugin_wirecam button').prop('disabled', false);
