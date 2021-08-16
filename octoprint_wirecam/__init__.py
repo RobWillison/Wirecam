@@ -116,7 +116,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
             return
         self.serial.reset_input_buffer()
         self.serial.write(str.encode('C' + str(x) + ',' + str(y) + ',' + str(z) + ',' + str(r) + ',' + str(u) + '\r\n'))
-        self.serial.read_until(b'Done', 4)
+        self.serial.read_until(b'Done')
         # wait 2 secs for wobble to stop
         sleep(2)
 
@@ -126,7 +126,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
 
         self.serial.reset_input_buffer()
         self.serial.write(b'Home\r\n')
-        self.serial.read_until(b'Done', 4)
+        self.serial.read_until(b'Done')
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
