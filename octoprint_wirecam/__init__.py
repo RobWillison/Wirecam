@@ -125,7 +125,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
             return
 
         self.serial.reset_input_buffer()
-        self.serial.write(b'HOME\r\n')
+        self.serial.write(b'Home\r\n')
         self.serial.read_until(b'Done', 4)
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
