@@ -77,7 +77,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
             x = radius * math.sin(math.radians(angle + 90))
             y = - radius * math.cos(math.radians(90 - angle))
             # point camera to the center
-            rotate_stepper = angle / 180
+            rotate_stepper = 1 - (angle / 180)
 
             z = height_step * i + start_height
 
