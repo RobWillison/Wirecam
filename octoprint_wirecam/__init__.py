@@ -67,7 +67,7 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         self._logger.info('radius is set too ' + str(radius))
 
         camera_coords = []
-        angle_step = 180 / layers
+        angle_step = 165 / layers
 
         start_height = float(self._settings.get(['start_height']))
         height_step = (float(self._settings.get(['end_height'])) - start_height) / layers
