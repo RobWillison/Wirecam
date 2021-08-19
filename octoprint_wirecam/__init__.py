@@ -119,8 +119,6 @@ class WirecamPlugin(octoprint.plugin.StartupPlugin,
         self.serial.reset_input_buffer()
         self.serial.write(str.encode('C' + str(x) + ',' + str(y) + ',' + str(z) + ',' + str(r) + ',' + str(u) + '\r\n'))
         self.serial.read_until(b'Done')
-        # wait 2 secs for wobble to stop
-        sleep(2)
 
     def homeCamera(self):
         if not self.serial:
